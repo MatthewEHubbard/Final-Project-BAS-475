@@ -44,7 +44,7 @@ HOLDOUT <- HOLDOUT[,2:3]
 MODELS <- TRAIN %>%
   model(
     NaiveModel = NAIVE(transform),
-    #tslm = TSLM(~trend(transform)),
+    tslm = TSLM(~trend(transform)),
     ets = ETS(transform),
     arima210 = ARIMA(transform ~ pdq(2,1,0)),
     arima013 = ARIMA(transform ~ pdq(0,1,0)),
