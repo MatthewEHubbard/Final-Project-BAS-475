@@ -9,11 +9,13 @@ library(tsibbledata)
 library(ggeasy)
 ```
 
-{r setup, include=FALSE}
+```{r setup, include=FALSE}
 DATA <- read.csv("Credit.csv")
 summary(DATA)
+DATA$Credit <- DATA$ï..credit_in_millions
 DATA$Month <- seq(492,1, by =-1)
 DATA <- DATA[order(DATA$Month),]
+DATA <- DATA[,2:3]
 TimeSeries <- DATA %>%
   mutate(Month = yearmonth(Month)) %>%
   as_tsibble(index = Month)
@@ -31,25 +33,23 @@ TimeSeries %>%
 #Plot transformed series
 TimeSTransformed %>% gg_tsdisplay(transform)
 
-TimeSTransformed %>%
-  features(transform, unitroot_kpss)
-
-
-TRAIN <- TimeSeries %>%
+TRAIN <- TimeSTransformed %>%
   filter(Month<=yearmonth('May 2007'))
 
-HOLDOUT <- TimeSeries %>%
+HOLDOUT <- TimeSTransformed %>%
   filter(Month>yearmonth('May 2007'))
 
+TRAIN <- TRAIN[,2:3]
+HOLDOUT <- HOLDOUT[,2:3]
 MODELS <- TRAIN %>%
   model(
-    NaiveModel = NAIVE(),
-    tslm = TSLM(~trend()),
-    ets = ETS(),
-    arima210 = ARIMA(credit_in_millions ~ pdq(2,1,0)),
-    arima013 = ARIMA(credit_in_millions ~ pdq(0,1,3)),
-    stepwise = ARIMA(credit_in_millions),
-    search = ARIMA(credit_in_millions, stepwise = FALSE)
+    NaiveModel = NAIVE(transform),
+    #tslm = TSLM(~trend(transform)),
+    ets = ETS(transform),
+    arima210 = ARIMA(transform ~ pdq(2,1,0)),
+    arima013 = ARIMA(transform ~ pdq(0,1,0)),
+    stepwise = ARIMA(transform),
+    search = ARIMA(transform, stepwise = FALSE)
   )
 
 FORECAST <- MODELS %>%
@@ -57,5 +57,7 @@ FORECAST <- MODELS %>%
 
 autoplot(FORECAST)
 
-accuracy(FORECAST, TimeSeries) %>%
+accuracy(FORECAST, TimeSTransformed) %>%
   arrange(RMSE)
+  
+```
