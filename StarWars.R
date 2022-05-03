@@ -47,6 +47,10 @@ MODELS <- TRAIN %>%
   model(
     NaiveModel = NAIVE(transform),
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+    tslm = TSLM(~trend(transform)),
+>>>>>>> 984a55c5a4d3dfa8f4877b1fae4e1d541fc3f2d0
 =======
     tslm = TSLM(~trend(transform)),
 >>>>>>> 984a55c5a4d3dfa8f4877b1fae4e1d541fc3f2d0
